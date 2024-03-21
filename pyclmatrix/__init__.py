@@ -3,6 +3,7 @@ from .utils import Platfrom
 from ._globals import GlobalPyCL,StateDict
 
 
+
 #don't touch this variable
 PYCL_GLOBAL:GlobalPyCL = GlobalPyCL()
 

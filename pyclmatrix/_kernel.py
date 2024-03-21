@@ -43,7 +43,7 @@ class Kernels:
         return self.programs[self.state[name]]
 
     def __str__(self)->str:
-        res = f"Kernels[{[k for k in self.state]}]"
+        res = f"Kernels{[f"{k}:{self.state[k]}" for k in self.state]}"
         return res
 
     def __contains__(self,name:str)->bool:

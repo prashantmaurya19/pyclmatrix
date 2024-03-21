@@ -1,4 +1,4 @@
-from pyclmatrix import init,is_initialized
+from ..pyclmatrix import init,is_initialized
 
 init()
 

@@ -1,0 +1,2 @@
+from ..pyclmatrix import *
+init()
