@@ -1,5 +1,7 @@
-from typing import List
+from typing import Callable, List
 from pyopencl import Program,kernel_info
+from .mem import Tensor
+from functools import partial
 
 
 """default kernels"""
@@ -12,7 +14,7 @@ kernel void matix_mutiply(){
 
 class Kernels:
     class KernelNotFound(Exception):
-        def __init__(self, *args: object,**kwargs:dict) -> None:
+        def __init__(self, *args: str,**kwargs:object) -> None:
             super().__init__(*args,**kwargs)
 
     def __init__(self,progs:List[Program]=[]):
@@ -24,8 +26,16 @@ class Kernels:
     def get_kernel_names_from_program(cls,prog:Program)->List[str]:
         return [ k.get_info(kernel_info.FUNCTION_NAME) for k in prog.all_kernels()]
 
+    @classmethod
+    def preprocess_args_list(cls,*args:Tensor)->List:
+        return [k.as_mem() for k in args]
+
     def __set_kernel_state(self,kernel_name:str,index:int):
         self.state[kernel_name] = index
+
+    def __kernel_func(self,kernel_name:str,*args:Tensor,**kwargs:object):
+        # print(kernel_name,args,kwargs)
+        getattr(self.get_kernel(kernel_name),kernel_name)(*self.preprocess_args_list(*args),**kwargs)
 
     def register_programs(self,progs:List[Program]):
         for p in progs:
@@ -49,8 +59,12 @@ class Kernels:
     def __contains__(self,name:str)->bool:
         return name in self.state
 
-    def __getattr__(self,name:str)->Program:
-        return self[name]
+    def __getattribute__(self,name:str):
+        try:
+            return super().__getattribute__(name)
+        except:
+            if name in self:
+                return partial(self.__kernel_func,name)
 
     def __getitem__(self,name:str)->Program:
         return self.get_kernel(name)

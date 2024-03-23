@@ -7,11 +7,11 @@ from typing import List, Literal
 
 def get_platform_name_space() -> List[str]:
     """
-    it is same as pycmatrix.utils.Platfrom.getPlatformNameSpace()
+    it is same as pycmatrix.utils.Platform.getPlatformNameSpace()
     """
-    return Platfrom.getPlatformNameSpace()
+    return Platform.getPlatformNameSpace()
 
-class Platfrom:
+class Platform:
     PLATFORMS:List[pyc.Platform] = pyc.get_platforms()
     
     class PlatformNotFound(Exception):

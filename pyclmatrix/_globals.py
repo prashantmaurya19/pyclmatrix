@@ -1,6 +1,6 @@
-from typing import TypedDict
+from typing import Literal, TypedDict
 from ._kernel import DEFAULT_KERNELS,Kernels
-from pyopencl import Platform,Context, device_type,CommandQueue,Program
+from pyopencl import Platform,Context,CommandQueue,Program
 
 class StateDict(TypedDict):
     platform:Platform
@@ -9,13 +9,21 @@ class StateDict(TypedDict):
     programs:Kernels
 
 class GlobalPyCL:
-
     class PlatformNotExists(Exception):
-        def __init__(self, *args: object) -> None:
+        def __init__(self, *args: str) -> None:
             super().__init__(*args)
 
     def __init__(self) -> None:
         self.state:dict[str,StateDict] = {}
+        self.__current_selected_platform:str = "" 
+
+    def set_currect_platform(self,platform:str):
+        if platform not in self:
+            raise self.PlatformNotExists(platform)
+        self.__current_selected_platform = platform
+
+    def get_currect_platform(self)->str:
+        return self.__current_selected_platform
 
     def set(self,platform:Platform):
         if platform.name in self:
@@ -32,6 +40,10 @@ class GlobalPyCL:
         if platform_name not in self:
             raise self.PlatformNotExists(platform_name)
         return self.state[platform_name]
+
+    def get_kind(self,platform_name:str|None,kind:Literal["platform","context","queue","programs"]
+                 )->Platform|Context|CommandQueue|Kernels:
+        return self.get(self.get_currect_platform() if platform_name==None else platform_name)[kind]
 
     def __contains__(self,platform_name:str):
         return platform_name in self.state
