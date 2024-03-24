@@ -1,11 +1,8 @@
 from typing import Literal
 from pyopencl import Context, Platform
 from .utils import Platform as platform
-from ._globals import GlobalPyCL,StateDict
+from ._globals import StateDict,PYCL_GLOBAL
 from ._kernel import Kernels
-
-#don't touch this variable
-PYCL_GLOBAL:GlobalPyCL = GlobalPyCL()
 
 def is_initialized()->bool:
     global PYCL_GLOBAL

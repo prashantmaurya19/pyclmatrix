@@ -51,8 +51,5 @@ class GlobalPyCL:
     def __len__(self):
         return len(self.state)
 
-        
-        
-
-
-
+#don't touch this variable
+PYCL_GLOBAL:GlobalPyCL = GlobalPyCL()

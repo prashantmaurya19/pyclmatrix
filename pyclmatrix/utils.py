@@ -2,17 +2,17 @@
 this is has platform related utils
 """
 
-import pyopencl as pyc
+import pyopencl as cl
 from typing import List, Literal
 
 def get_platform_name_space() -> List[str]:
     """
-    it is same as pycmatrix.utils.Platform.getPlatformNameSpace()
+    it is same as pyclmatrix.utils.Platform.getPlatformNameSpace()
     """
     return Platform.getPlatformNameSpace()
 
 class Platform:
-    PLATFORMS:List[pyc.Platform] = pyc.get_platforms()
+    PLATFORMS:List[cl.Platform] = cl.get_platforms()
     
     class PlatformNotFound(Exception):
         def __init__(self, *args: object,**kwargs:dict) -> None:
@@ -25,7 +25,7 @@ class Platform:
         return [plt.name for plt in cls.PLATFORMS]
 
     @classmethod
-    def getPlatform(cls,name:str|Literal["auto"])->pyc.Platform:
+    def getPlatform(cls,name:str|Literal["auto"])->cl.Platform:
         for plt in cls.PLATFORMS:
             if name=="auto":
                 return plt
@@ -36,5 +36,4 @@ class Platform:
 
     def __init__(self):
         raise BaseException("this is a singleton class.")
-
 

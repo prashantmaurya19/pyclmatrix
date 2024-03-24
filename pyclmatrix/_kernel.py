@@ -1,10 +1,9 @@
-from typing import Callable, List
+from typing import Any, List
 from pyopencl import Program,kernel_info
-from .mem import Tensor
+from .mem import SvmMatrix,BufferMatrix
 from functools import partial
 
 
-"""default kernels"""
 DEFAULT_KERNELS: str = """
 kernel void scaler_mutiply(){
 }
@@ -27,13 +26,13 @@ class Kernels:
         return [ k.get_info(kernel_info.FUNCTION_NAME) for k in prog.all_kernels()]
 
     @classmethod
-    def preprocess_args_list(cls,*args:Tensor)->List:
+    def preprocess_args_list(cls,*args:SvmMatrix|BufferMatrix)->List:
         return [k.as_mem() for k in args]
 
     def __set_kernel_state(self,kernel_name:str,index:int):
         self.state[kernel_name] = index
 
-    def __kernel_func(self,kernel_name:str,*args:Tensor,**kwargs:object):
+    def __kernel_func(self,kernel_name:str,*args:SvmMatrix|BufferMatrix,**kwargs:object):
         # print(kernel_name,args,kwargs)
         getattr(self.get_kernel(kernel_name),kernel_name)(*self.preprocess_args_list(*args),**kwargs)
 
@@ -59,12 +58,13 @@ class Kernels:
     def __contains__(self,name:str)->bool:
         return name in self.state
 
-    def __getattribute__(self,name:str):
+    def __getattribute__(self,name:str)->Any:
         try:
             return super().__getattribute__(name)
         except:
-            if name in self:
-                return partial(self.__kernel_func,name)
+            if name not in self:
+                raise self.KernelNotFound(name)
+            return partial(self.__kernel_func,name)
 
     def __getitem__(self,name:str)->Program:
         return self.get_kernel(name)
